@@ -43,13 +43,27 @@ app.get('/api/candidates', (req, res) => {
   });
 });
 
-// // GET a single candidate - Will eventually replace hardcorded ID with variable based on clients req
-// db.get(`SELECT * FROM candidates WHERE id = 1`, (err, row) => {
-//   if(err) {
-//     console.log(err);
-//   }
-//   console.log(row);
-// });
+// GET a single candidate - the endpoint has a route parameter that will hold the value of the id to specify which candidate we'll select from the database.
+app.get('/api/candidate/:id', (req, res) => {
+  // In the database call, we'll assign the captured value populated in the req.params object with the key id to params. The database call will then query the candidates table with this id and retrieve the row specified.
+  const sql = `SELECT * FROM candidates 
+               WHERE id = ?`;
+  // Because params can be accepted in the database call as an array, params is assigned as an array with a single element, req.params.id.
+  const params = [req.params.id];
+  db.get(sql, params, (err, row) => {
+    // 400 error will display if it doesn't meet params
+    if (err) {
+      res.status(400).json({ error: err.message });
+      return;
+    }
+
+    // successful message will display plus queried row. 
+    res.json({
+      message: 'success',
+      data: row
+    });
+  });
+});
 
 /*  The method run() will execute an SQL query but won't retrieve any result data. - The question mark (?) denotes a placeholder, making this a prepared statement. Prepared statements can have placeholders that can be filled in dynamically with real values at runtime. - An additional param argument can provide values for prepared statement placeholders. Here, we're hardcoding 1 temporarily to demonstrate how prepared statements work. If we need additional placeholders, the param argument can be an array that holds multiple values. -  An ES5 function is used for the callback. This allows us to take advantage of the database object that's returned in the callback function. Let's take a look at what the database object looks like, by logging this.  -  One reason to use a placeholder in the SQL query is to block an SQL injection attack, which replaces the client user variable and inserts alternate commands that could reveal or destroy the database. */
 
