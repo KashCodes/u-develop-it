@@ -5,16 +5,30 @@ const express = require('express');
 const PORT = process.env.PORT || 3001;
 const app = express();
 
+// connect SQLite3 database
+const sqlite3 = require('sqlite3').verbose();
+
 // Express middleware
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+
+// Connect to database specified election.db
+const db = new sqlite3.Database('./db/election.db', err => {
+  // if error display error message
+  if (err) {
+    return console.error(err.message);
+  }
+  console.log('Connected to the election database.');
+});
 
 // Default response for any other request(Not Found) Catch all
 app.use((req, res) => {
   res.status(404).end();
 });
 
-//listen/connect for server call to specified port
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// Start server after DB connection on specified port
+db.on('open', () => {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
 });
