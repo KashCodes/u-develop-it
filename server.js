@@ -21,10 +21,27 @@ const db = new sqlite3.Database('./db/election.db', err => {
   console.log('Connected to the election database.');
 });
 
-// // allows you to be able to run SQLite commands. db.all() method runs the SQL query and executes the callback with all the resulting rows that match the query.(err or rows) Returning an array of objects. 
-// db.all(`SELECT * FROM candidates`, (err, rows) => {
-//   console.log(rows);
-// });
+//  Get all candidates - allows you to be able to run SQLite commands. The api in the URL signifies that this is an API endpoint.
+app.get('/api/candidates', (req, res) => {
+  // The SQL statement SELECT * FROM candidates is assigned to the sql variable. 
+  const sql = `SELECT * FROM candidates`;
+  // Here we set the params assignment to an empty array because there are no placeholders in the SQL statement.
+  const params = [];
+  // db.all() method runs the SQL query and executes the callback with all the resulting rows that match the query.(err or rows) Returning an array of objects.
+  db.all(sql, params, (err, rows) => {
+    if (err) {
+      // displays server 500 error if error
+      res.status(500).json({ error: err.message });
+      return;
+    }
+
+    // displays success message and JSON formatted object if succeessful
+    res.json({
+      message: 'success',
+      data: rows
+    });
+  });
+});
 
 // // GET a single candidate - Will eventually replace hardcorded ID with variable based on clients req
 // db.get(`SELECT * FROM candidates WHERE id = 1`, (err, row) => {
@@ -44,19 +61,19 @@ const db = new sqlite3.Database('./db/election.db', err => {
 //   console.log(result, this, this.changes);
 // });
 
-// Create a candidate - In the SQL command we use the INSERT INTO command for the candidates table to add the values that are assigned to params.
-const sql = `INSERT INTO candidates (id, first_name, last_name, industry_connected) 
-              VALUES (?,?,?,?)`;
-//  The four placeholders must match the four values in params, so we must use an array.
-const params = [1, 'Ronald', 'Firbank', 1];
-// ES5 function, not arrow function, to use this
-db.run(sql, params, function(err, result) {
-  if (err) {
-    console.log(err);
-  }
-  // In the response, we'll log the this.lastID to display the id of the added candidate.
-  console.log(result, this.lastID);
-});
+// // Create a candidate - In the SQL command we use the INSERT INTO command for the candidates table to add the values that are assigned to params.
+// const sql = `INSERT INTO candidates (id, first_name, last_name, industry_connected) 
+//               VALUES (?,?,?,?)`;
+// //  The four placeholders must match the four values in params, so we must use an array.
+// const params = [1, 'Ronald', 'Firbank', 1];
+// // ES5 function, not arrow function, to use this
+// db.run(sql, params, function(err, result) {
+//   if (err) {
+//     console.log(err);
+//   }
+//   // In the response, we'll log the this.lastID to display the id of the added candidate.
+//   console.log(result, this.lastID);
+// });
 
 
 // Default response for any other request(Not Found) Catch all
