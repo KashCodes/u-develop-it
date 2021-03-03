@@ -1,13 +1,12 @@
 // import express 
 const express = require('express');
 const inputCheck = require('./utils/inputCheck');
+// connect SQLite3 database
+const sqlite3 = require('sqlite3').verbose();
 
 //designated port and app 
 const PORT = process.env.PORT || 3001;
 const app = express();
-
-// connect SQLite3 database
-const sqlite3 = require('sqlite3').verbose();
 
 // Express middleware
 app.use(express.urlencoded({ extended: false }));
