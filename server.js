@@ -67,13 +67,23 @@ app.get('/api/candidate/:id', (req, res) => {
 
 /*  The method run() will execute an SQL query but won't retrieve any result data. - The question mark (?) denotes a placeholder, making this a prepared statement. Prepared statements can have placeholders that can be filled in dynamically with real values at runtime. - An additional param argument can provide values for prepared statement placeholders. Here, we're hardcoding 1 temporarily to demonstrate how prepared statements work. If we need additional placeholders, the param argument can be an array that holds multiple values. -  An ES5 function is used for the callback. This allows us to take advantage of the database object that's returned in the callback function. Let's take a look at what the database object looks like, by logging this.  -  One reason to use a placeholder in the SQL query is to block an SQL injection attack, which replaces the client user variable and inserts alternate commands that could reveal or destroy the database. */
 
-// // Delete a candidate - See above /*  */
-// db.run(`DELETE FROM candidates WHERE id = ?`, 1, function(err, result) {
-//   if (err) {
-//     console.log(err);
-//   }
-//   console.log(result, this, this.changes);
-// });
+// Delete a candidate - See above /*  */
+app.delete('/api/candidate/:id', (req, res) => {
+  const sql = `DELETE FROM candidates WHERE id = ?`;
+  const params = [req.params.id];
+  db.run(sql, params, function(err, result) {
+    if (err) {
+      res.status(400).json({ error: res.message });
+      return;
+    }
+
+    res.json({
+      message: 'successfully deleted',
+      // this will verify whether any rows were changed.
+      changes: this.changes
+    });
+  });
+});
 
 // // Create a candidate - In the SQL command we use the INSERT INTO command for the candidates table to add the values that are assigned to params.
 // const sql = `INSERT INTO candidates (id, first_name, last_name, industry_connected) 
