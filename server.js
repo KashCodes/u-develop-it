@@ -1,5 +1,6 @@
 // import express 
 const express = require('express');
+const inputCheck = require('./utils/inputCheck');
 
 //designated port and app 
 const PORT = process.env.PORT || 3001;
@@ -85,20 +86,32 @@ app.delete('/api/candidate/:id', (req, res) => {
   });
 });
 
-// // Create a candidate - In the SQL command we use the INSERT INTO command for the candidates table to add the values that are assigned to params.
-// const sql = `INSERT INTO candidates (id, first_name, last_name, industry_connected) 
-//               VALUES (?,?,?,?)`;
-// //  The four placeholders must match the four values in params, so we must use an array.
-// const params = [1, 'Ronald', 'Firbank', 1];
-// // ES5 function, not arrow function, to use this
-// db.run(sql, params, function(err, result) {
-//   if (err) {
-//     console.log(err);
-//   }
-//   // In the response, we'll log the this.lastID to display the id of the added candidate.
-//   console.log(result, this.lastID);
-// });
 
+// Create a candidate  - In the SQL command we use the INSERT INTO command for the candidates table to add the values that are assigned to params.
+app.post('/api/candidate', ({ body }, res) => {
+  const errors = inputCheck(body, 'first_name', 'last_name', 'industry_connected');
+  if (errors) {
+    res.status(400).json({ error: errors });
+    return;
+  }
+
+  const sql = `INSERT INTO candidates (first_name, last_name, industry_connected) 
+              VALUES (?,?,?)`;
+  const params = [body.first_name, body.last_name, body.industry_connected];
+  // ES5 function, not arrow function, to use `this`
+  db.run(sql, params, function(err, result) {
+    if (err) {
+      res.status(400).json({ error: err.message });
+      return;
+    }
+
+    res.json({
+      message: 'success',
+      data: body,
+      id: this.lastID
+    });
+  });
+});
 
 // Default response for any other request(Not Found) Catch all
 app.use((req, res) => {
