@@ -24,7 +24,11 @@ const db = new sqlite3.Database('./db/election.db', err => {
 //  Get all candidates - allows you to be able to run SQLite commands. The api in the URL signifies that this is an API endpoint.
 app.get('/api/candidates', (req, res) => {
   // The SQL statement SELECT * FROM candidates is assigned to the sql variable. 
-  const sql = `SELECT * FROM candidates`;
+  const sql = `SELECT candidates.*, parties.name 
+                AS party_name 
+                FROM candidates 
+                LEFT JOIN parties 
+                ON candidates.party_id = parties.id`;
   // Here we set the params assignment to an empty array because there are no placeholders in the SQL statement.
   const params = [];
   // db.all() method runs the SQL query and executes the callback with all the resulting rows that match the query.(err or rows) Returning an array of objects.
@@ -46,8 +50,12 @@ app.get('/api/candidates', (req, res) => {
 // GET a single candidate - the endpoint has a route parameter that will hold the value of the id to specify which candidate we'll select from the database.
 app.get('/api/candidate/:id', (req, res) => {
   // In the database call, we'll assign the captured value populated in the req.params object with the key id to params. The database call will then query the candidates table with this id and retrieve the row specified.
-  const sql = `SELECT * FROM candidates 
-               WHERE id = ?`;
+  const sql = `SELECT candidates.*, parties.name 
+                AS party_name 
+                FROM candidates 
+                LEFT JOIN parties 
+                ON candidates.party_id = parties.id 
+                WHERE candidates.id = ?`;
   // Because params can be accepted in the database call as an array, params is assigned as an array with a single element, req.params.id.
   const params = [req.params.id];
   db.get(sql, params, (err, row) => {
