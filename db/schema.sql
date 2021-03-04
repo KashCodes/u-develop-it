@@ -1,5 +1,6 @@
 DROP TABLE IF EXISTS parties;
 DROP TABLE IF EXISTS candidates;
+DROP TABLE IF EXISTS voters;
 
 /*Because the candidates table constraint relies on the parties table, the parties table MUST be defined first before the candidates table. Make sure you order your tables in schema.sql correctly.*/
 CREATE TABLE parties (
@@ -17,3 +18,10 @@ CREATE TABLE candidates (
   CONSTRAINT fk_party FOREIGN KEY (party_id) REFERENCES parties(id) ON DELETE SET NULL
 );
 
+CREATE TABLE voters (
+  id INTEGER PRIMARY KEY,
+  first_name VARCHAR(30) NOT NULL,
+  last_name VARCHAR(30) NOT NULL,
+  email VARCHAR(50) NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
